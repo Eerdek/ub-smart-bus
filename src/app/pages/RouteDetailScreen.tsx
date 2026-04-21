@@ -92,9 +92,9 @@ const defaultRoute = {
 };
 
 const occupancyColors: Record<string, { bg: string; color: string; label: string }> = {
-  low: { bg: "#EAF8EF", color: "#16A34A", label: "Сул" },
-  medium: { bg: "#FFF7E8", color: "#D97706", label: "Дунд" },
-  full: { bg: "#FDECEC", color: "#DC2626", label: "Дүүрэн" },
+  low: { bg: "#EAF8EF", color: "#16A34A", label: "" },
+  medium: { bg: "#FFF7E8", color: "#D97706", label: "" },
+  full: { bg: "#FDECEC", color: "#DC2626", label: "" },
 };
 
 export function RouteDetailScreen() {
