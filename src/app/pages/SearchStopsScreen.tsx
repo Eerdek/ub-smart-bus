@@ -27,7 +27,7 @@ export function SearchStopsScreen() {
   );
 
   return (
-    <div className="flex flex-col" style={{ minHeight: 844, background: "#F7F8FA" }}>
+    <div className="flex flex-col" style={{ height: "100%", background: "#F7F8FA" }}>
       <div style={{ height: 44, background: "#fff" }} />
       <AppBar title="Буудал хайх" showBack />
 

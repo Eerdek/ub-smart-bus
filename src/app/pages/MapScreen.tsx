@@ -1,315 +1,465 @@
-import { useState } from "react";
-import { useNavigate } from "react-router";
-import { Search, Navigation, X, Bus, MapPin, ChevronRight, Layers } from "lucide-react";
+import { useMemo, useState } from "react";
+import { AppBar } from "../components/AppBar";
 import { BottomNav } from "../components/BottomNav";
-import { EtaChip } from "../components/EtaChip";
+import { Bus, MapPin, LocateFixed, ArrowRightLeft, Footprints } from "lucide-react";
 
-const filters = ["Бүгд", "Ойролцоо", "Live автобус", "Хурдан"];
+type MapPoint = [number, number];
 
-const mapStops = [
-  { id: "1", name: "Сүхбаатарын талбай", x: 49, y: 48, type: "stop" },
-  { id: "2", name: "Их Сургуулийн буудал", x: 35, y: 38, type: "stop" },
-  { id: "3", name: "Их дэлгүүр", x: 55, y: 60, type: "stop" },
-  { id: "4", name: "Наадмын талбай", x: 68, y: 45, type: "stop" },
-  { id: "5", name: "Нийслэлийн эмнэлэг", x: 42, y: 62, type: "stop" },
-  { id: "6", name: "Зайсан", x: 30, y: 75, type: "stop" },
-];
-
-const liveBuses = [
-  { id: "b1", route: "XO:112", x: 47, y: 52, eta: 2 },
-  { id: "b2", route: "11", x: 61, y: 41, eta: 6 },
-  { id: "b3", route: "XO:12", x: 33, y: 66, eta: 9 },
-  { id: "b4", route: "7", x: 56, y: 35, eta: 4 },
-];
-
-type SelectedStop = {
+type RouteOption = {
   id: string;
-  name: string;
-  arrivals: Array<{ route: string; destination: string; eta: number }>;
-} | null;
-
-const stopArrivals: Record<string, Array<{ route: string; destination: string; eta: number }>> = {
-  "1": [
-    { route: "XO:112", destination: "Офицеруудын ордон", eta: 2 },
-    { route: "11", destination: "Баянгол", eta: 5 },
-    { route: "23", destination: "Дэнж уул", eta: 8 },
-  ],
-  "2": [
-    { route: "1", destination: "Зайсан", eta: 3 },
-    { route: "5", destination: "Амгалан", eta: 7 },
-  ],
-  "3": [
-    { route: "3", destination: "Налайх", eta: 4 },
-    { route: "32", destination: "Баянхошуу", eta: 9 },
-  ],
-  "4": [
-    { route: "XO:112", destination: "Офицеруудын ордон", eta: 6 },
-    { route: "7", destination: "Хайлааст", eta: 11 },
-  ],
-  "5": [
-    { route: "4", destination: "Нисэх", eta: 5 },
-    { route: "8", destination: "Зайсан", eta: 12 },
-  ],
-  "6": [
-    { route: "XO:33", destination: "Чингэлтэй", eta: 7 },
-    { route: "33", destination: "Чингэлтэй", eta: 15 },
-  ],
+  line: string;
+  minutes: number;
+  interval: string;
+  distance: string;
+  color: string;
+  path: MapPoint[];
+  bubblePos: { x: number; y: number };
+  from: string;
+  to: string;
+  walk: string;
+  busStops: string;
+  firstBus: string;
+  lastBus: string;
+  fare: string;
+  steps: string[];
 };
 
-export function MapScreen() {
-  const navigate = useNavigate();
-  const [activeFilter, setActiveFilter] = useState("Бүгд");
-  const [selectedStop, setSelectedStop] = useState<SelectedStop>(null);
+const routeOptions: RouteOption[] = [
+  {
+    id: "r23",
+    line: "23",
+    minutes: 23,
+    interval: "5 мин тутам",
+    distance: "2.1 км",
+    color: "#00A7D6",
+    path: [
+      [22, 48],
+      [30, 48],
+      [38, 48],
+      [46, 48],
+      [52, 48],
+      [56, 47],
+      [58, 45],
+      [61, 45],
+    ],
+    bubblePos: { x: 11, y: 40 },
+    from: "5 Толгой дэлгүүр",
+    to: "БЗД 17-р хороо",
+    walk: "120 м",
+    busStops: "8 буудал",
+    firstBus: "06:10",
+    lastBus: "22:40",
+    fare: "500₮",
+    steps: [
+      "Эхлэлээс 120м алхаж 23 чиглэлийн буудалд очно.",
+      "23-р автобусанд сууж 8 буудал явна.",
+      "БЗД 17-р хорооны буудал дээр бууна.",
+    ],
+  },
+  {
+    id: "r30",
+    line: "30",
+    minutes: 30,
+    interval: "6 мин тутам",
+    distance: "2.3 км",
+    color: "#E2B400",
+    path: [
+      [22, 48],
+      [24, 40],
+      [25, 31],
+      [26, 22],
+      [27, 14],
+      [29, 8],
+      [33, 6],
+      [38, 7],
+      [42, 12],
+      [44, 19],
+      [45, 27],
+      [47, 34],
+      [51, 39],
+      [57, 41],
+      [61, 45],
+    ],
+    bubblePos: { x: 52, y: 22 },
+    from: "5 Толгой дэлгүүр",
+    to: "БЗД 17-р хороо",
+    walk: "250 м",
+    busStops: "11 буудал",
+    firstBus: "06:20",
+    lastBus: "22:20",
+    fare: "500₮",
+    steps: [
+      "Эхлэлээс баруун хойд чигт 250м алхана.",
+      "30-р автобусанд сууж 11 буудал явна.",
+      "Эцсийн буудлаас 90м алхаж зорьсон цэгт хүрнэ.",
+    ],
+  },
+  {
+    id: "r33",
+    line: "33",
+    minutes: 33,
+    interval: "5 мин тутам",
+    distance: "2.8 км",
+    color: "#3047F2",
+    path: [
+      [22, 48],
+      [22, 56],
+      [23, 65],
+      [24, 74],
+      [27, 82],
+      [32, 83],
+      [39, 79],
+      [45, 73],
+      [49, 66],
+      [50, 58],
+      [50, 49],
+      [51, 41],
+      [55, 40],
+      [58, 42],
+      [61, 45],
+    ],
+    bubblePos: { x: 33, y: 58 },
+    from: "5 Толгой дэлгүүр",
+    to: "БЗД 17-р хороо",
+    walk: "310 м",
+    busStops: "12 буудал",
+    firstBus: "06:00",
+    lastBus: "22:50",
+    fare: "500₮",
+    steps: [
+      "Эхлэлээс урд зүгт 310м алхана.",
+      "33-р автобусанд суугаад 12 буудал явна.",
+      "Зорьсон буудал дээр буугаад 70м алхана.",
+    ],
+  },
+];
 
-  const handleStopTap = (stop: typeof mapStops[0]) => {
-    setSelectedStop({
-      id: stop.id,
-      name: stop.name,
-      arrivals: stopArrivals[stop.id] || [],
-    });
-  };
+const hospitals = [
+  { id: "h1", x: 11, y: 59 },
+  { id: "h2", x: 15, y: 76 },
+  { id: "h3", x: 67, y: 88 },
+];
+
+function pointsToSvg(route: MapPoint[]) {
+  return route.map(([x, y]) => `${x},${y}`).join(" ");
+}
+
+export function MapScreen() {
+  const [selectedRoute, setSelectedRoute] = useState<string | null>(null);
+
+  const selected = useMemo(
+    () => routeOptions.find(route => route.id === selectedRoute) ?? null,
+    [selectedRoute],
+  );
 
   return (
-    <div className="flex flex-col" style={{ height: 844, background: "#F7F8FA", position: "relative" }}>
-      <div style={{ height: 44, background: "transparent", position: "absolute", top: 0, left: 0, right: 0, zIndex: 10 }} />
+    <div className="flex flex-col" style={{ height: "100%", background: "#F7F8FA" }}>
+      <div style={{ height: 44, background: "#fff" }} />
+      <AppBar title="Газрын зураг" showBack />
 
-      {/* Map background */}
-      <div style={{ position: "absolute", inset: 0, zIndex: 0, overflow: "hidden" }}>
-        {/* Grid background */}
-        <div style={{
-          position: "absolute", inset: 0,
-          background: "#E8EFF5",
-          backgroundImage: `
-            linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px)
-          `,
-          backgroundSize: "40px 40px",
-        }} />
+      <div className="flex-1" style={{ position: "relative", overflow: "hidden", background: "#D9D9D9" }}>
+        <div style={{ position: "absolute", top: 12, left: 12, right: 12, zIndex: 30 }}>
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 14,
+              border: "1px solid #D6D6D6",
+              boxShadow: "0 8px 18px rgba(0,0,0,0.18)",
+              padding: 10,
+            }}
+          >
+            <div className="flex items-center gap-2" style={{ marginBottom: 8 }}>
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#2B2B2B", flexShrink: 0 }} />
+              <span style={{ fontSize: 13, color: "#222", fontWeight: 600 }}>5 Толгой дэлгүүр</span>
+              <button
+                type="button"
+                style={{
+                  marginLeft: "auto",
+                  width: 30,
+                  height: 30,
+                  borderRadius: "50%",
+                  border: "none",
+                  background: "#F1F3F5",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                }}
+              >
+                <ArrowRightLeft size={15} style={{ color: "#646B74" }} />
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin size={15} style={{ color: "#D83C3C", flexShrink: 0 }} />
+              <span style={{ fontSize: 13, color: "#222", fontWeight: 600 }}>БЗД 17-р хороо</span>
+            </div>
+          </div>
+        </div>
 
-        {/* Road lines */}
-        <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} viewBox="0 0 390 844" preserveAspectRatio="none">
-          {/* Major roads */}
-          <path d="M0 420 Q195 380 390 420" stroke="#C8D8E8" strokeWidth="18" fill="none" />
-          <path d="M195 0 Q200 422 195 844" stroke="#C8D8E8" strokeWidth="14" fill="none" />
-          <path d="M0 320 Q390 300 390 320" stroke="#C8D8E8" strokeWidth="12" fill="none" />
-          <path d="M80 0 Q90 422 80 844" stroke="#D4E0EA" strokeWidth="10" fill="none" />
-          <path d="M300 0 Q310 422 300 844" stroke="#D4E0EA" strokeWidth="10" fill="none" />
+        <svg
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+        >
+          <rect x="0" y="0" width="100" height="100" fill="#D9D9D9" />
 
-          {/* Route lines */}
-          <path d="M50 300 Q150 380 250 400 Q320 410 380 390" stroke="#F47C20" strokeWidth="3" fill="none" strokeDasharray="8,4" opacity="0.6" />
-          <path d="M30 600 Q130 500 230 430 Q300 400 370 350" stroke="#2563EB" strokeWidth="3" fill="none" strokeDasharray="8,4" opacity="0.5" />
-          <path d="M100 750 Q180 650 200 500 Q210 420 220 300" stroke="#7C3AED" strokeWidth="3" fill="none" strokeDasharray="8,4" opacity="0.4" />
+          <path d="M3 34 L18 36 L32 37 L46 37 L60 36 L78 36 L97 36" stroke="#B8B8B8" strokeWidth="2.2" fill="none" />
+          <path d="M3 72 L18 74 L29 76 L43 77 L60 78 L78 80 L98 81" stroke="#8AA3C5" strokeWidth="2.4" fill="none" />
+          <path d="M25 5 L27 16 L28 29 L29 42 L29 55 L28 68 L27 81 L26 95" stroke="#B8B8B8" strokeWidth="1.3" fill="none" />
+          <path d="M48 8 L48 18 L48 31 L49 45 L49 58 L49 72 L49 88" stroke="#B8B8B8" strokeWidth="1.1" fill="none" />
 
-          {/* Block shapes */}
-          <rect x="40" y="180" width="80" height="60" rx="4" fill="#D6E4ED" />
-          <rect x="160" y="160" width="60" height="70" rx="4" fill="#D6E4ED" />
-          <rect x="250" y="170" width="90" height="55" rx="4" fill="#D6E4ED" />
-          <rect x="40" y="460" width="70" height="80" rx="4" fill="#D6E4ED" />
-          <rect x="150" y="480" width="100" height="65" rx="4" fill="#D6E4ED" />
-          <rect x="280" y="450" width="80" height="90" rx="4" fill="#D6E4ED" />
-          <rect x="30" y="620" width="90" height="70" rx="4" fill="#D6E4ED" />
-          <rect x="160" y="600" width="120" height="80" rx="4" fill="#D6E4ED" />
+          <path d="M12 18 L21 21 L19 30 L10 28 Z" fill="#C7E2CD" />
+          <path d="M67 86 L77 85 L80 94 L69 95 Z" fill="#C7E2CD" />
+
+          {routeOptions.map(route => {
+            const isSelected = route.id === selectedRoute;
+            return (
+              <g key={route.id}>
+                {isSelected && (
+                  <polyline
+                    points={pointsToSvg(route.path)}
+                    fill="none"
+                    stroke="#2A2A2A"
+                    strokeWidth={3.8}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    opacity={0.28}
+                  />
+                )}
+                <polyline
+                  points={pointsToSvg(route.path)}
+                  fill="none"
+                  stroke={isSelected ? route.color : "#AEB6BF"}
+                  strokeWidth={isSelected ? 2.8 : 1.8}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  opacity={isSelected ? 1 : 0.65}
+                />
+              </g>
+            );
+          })}
+
+          <circle cx="22" cy="48" r="1.25" fill="#fff" stroke="#2B2B2B" strokeWidth="0.45" />
+          <circle cx="61" cy="45" r="1.1" fill="#fff" stroke="#2B2B2B" strokeWidth="0.42" />
+
+          <circle cx="24.8" cy="48" r="0.95" fill={selectedRoute === "r30" ? "#E2B400" : "#B8BEC7"} stroke="#2B2B2B" strokeWidth="0.25" />
+          <circle cx="27.1" cy="48" r="0.95" fill={selectedRoute === "r33" ? "#3047F2" : "#B8BEC7"} stroke="#2B2B2B" strokeWidth="0.25" />
+          <circle cx="29.4" cy="48" r="0.95" fill={selectedRoute === "r23" ? "#00A7D6" : "#B8BEC7"} stroke="#2B2B2B" strokeWidth="0.25" />
         </svg>
 
-        {/* Stop markers */}
-        {mapStops.map(stop => (
-          <button
-            key={stop.id}
-            onClick={() => handleStopTap(stop)}
-            style={{
-              position: "absolute",
-              left: `${stop.x}%`,
-              top: `${stop.y}%`,
-              transform: "translate(-50%, -100%)",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: 0,
-              zIndex: 5,
-            }}
-          >
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <div style={{
-                width: selectedStop?.id === stop.id ? 36 : 28,
-                height: selectedStop?.id === stop.id ? 36 : 28,
-                borderRadius: "50%",
-                background: selectedStop?.id === stop.id ? "#F47C20" : "#fff",
-                border: `2.5px solid ${selectedStop?.id === stop.id ? "#F47C20" : "#F47C20"}`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                boxShadow: "0 3px 10px rgba(0,0,0,0.2)",
-                transition: "all 0.2s",
-              }}>
-                <MapPin size={selectedStop?.id === stop.id ? 18 : 14} style={{ color: selectedStop?.id === stop.id ? "#fff" : "#F47C20" }} />
-              </div>
-              <div style={{ width: 2, height: 8, background: "#F47C20" }} />
-            </div>
-          </button>
+        {routeOptions.map(route => (
+          <RouteCallout
+            key={route.id}
+            route={route}
+            selected={route.id === selectedRoute}
+            onClick={() => setSelectedRoute(prev => (prev === route.id ? null : route.id))}
+          />
         ))}
 
-        {/* Live bus markers */}
-        {liveBuses.map(bus => (
-          <div
-            key={bus.id}
-            style={{
-              position: "absolute",
-              left: `${bus.x}%`,
-              top: `${bus.y}%`,
-              transform: "translate(-50%, -50%)",
-              zIndex: 6,
-            }}
-          >
-            <div style={{
-              background: "#2563EB",
-              borderRadius: "50%",
-              width: 32, height: 32,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: "0 0 0 4px rgba(37,99,235,0.2)",
-              border: "2px solid #fff",
-            }}>
-              <Bus size={14} style={{ color: "#fff" }} />
-            </div>
-            <div style={{
-              background: "#fff",
-              borderRadius: 6,
-              padding: "2px 5px",
-              fontSize: 10,
-              fontWeight: 700,
-              color: "#2563EB",
-              textAlign: "center",
-              boxShadow: "0 1px 4px rgba(0,0,0,0.15)",
-              marginTop: 2,
-              whiteSpace: "nowrap",
-            }}>{bus.route}</div>
-          </div>
-        ))}
-
-        {/* User location */}
-        <div style={{ position: "absolute", left: "48%", top: "50%", transform: "translate(-50%, -50%)", zIndex: 7 }}>
-          <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#2563EB", border: "3px solid #fff", boxShadow: "0 0 0 8px rgba(37,99,235,0.15)" }} />
-        </div>
-      </div>
-
-      {/* Overlay controls */}
-      <div style={{ position: "absolute", top: 44, left: 0, right: 0, zIndex: 20, padding: "12px 16px" }}>
-        {/* Search bar */}
-        <div
-          className="flex items-center gap-2"
-          style={{
-            height: 48,
-            background: "#fff",
-            borderRadius: 999,
-            padding: "0 16px",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-          }}
-        >
-          <Search size={18} style={{ color: "#9CA3AF" }} />
-          <span style={{ flex: 1, fontSize: 14, color: "#9CA3AF" }}>Газрын зураг дээр хайх...</span>
-          <Layers size={18} style={{ color: "#6B7280" }} />
-        </div>
-
-        {/* Filter chips */}
-        <div className="flex gap-2 mt-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-          {filters.map(f => (
-            <button
-              key={f}
-              onClick={() => setActiveFilter(f)}
-              style={{
-                height: 32, padding: "0 14px",
-                borderRadius: 999,
-                border: "none",
-                background: activeFilter === f ? "#F47C20" : "#fff",
-                color: activeFilter === f ? "#fff" : "#374151",
-                fontSize: 13, fontWeight: activeFilter === f ? 600 : 400,
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-              }}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Locate me button */}
-      <div style={{ position: "absolute", bottom: selectedStop ? 280 : 100, right: 16, zIndex: 20 }}>
-        <button style={{
-          width: 48, height: 48, borderRadius: "50%",
-          background: "#fff", border: "none", cursor: "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
-        }}>
-          <Navigation size={22} style={{ color: "#F47C20" }} />
-        </button>
-      </div>
-
-      {/* Selected stop bottom sheet */}
-      {selectedStop && (
         <div
           style={{
             position: "absolute",
-            bottom: 76,
-            left: 16,
-            right: 16,
-            background: "#fff",
-            borderRadius: 20,
-            padding: "16px",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
-            zIndex: 30,
-            animation: "slideUp 0.25s ease-out",
+            left: "61%",
+            top: "45%",
+            transform: "translate(-50%, -100%)",
+            zIndex: 22,
+            filter: "drop-shadow(0 4px 5px rgba(0,0,0,0.22))",
           }}
         >
-          <div className="flex items-start justify-between mb-3">
-            <div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: "#111827" }}>{selectedStop.name}</div>
-              <div className="flex items-center gap-1 mt-1">
-                <Navigation size={12} style={{ color: "#9CA3AF" }} />
-                <span style={{ fontSize: 12, color: "#9CA3AF" }}>120м дотор</span>
-              </div>
-            </div>
-            <button
-              onClick={() => setSelectedStop(null)}
-              style={{ width: 32, height: 32, borderRadius: "50%", background: "#F7F8FA", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-            >
-              <X size={16} style={{ color: "#6B7280" }} />
-            </button>
-          </div>
+          <MapPin size={30} style={{ color: "#D83C3C", fill: "#D83C3C" }} />
+        </div>
 
-          {/* Next buses */}
-          <div className="flex flex-col gap-2 mb-4">
-            {selectedStop.arrivals.slice(0, 2).map((arr, i) => (
-              <div key={i} className="flex items-center gap-3" style={{ background: "#F7F8FA", borderRadius: 10, padding: "10px 12px" }}>
-                <span style={{ fontSize: 12, fontWeight: 700, background: "#FFF1E7", color: "#F47C20", borderRadius: 6, padding: "3px 8px" }}>{arr.route}</span>
-                <span style={{ flex: 1, fontSize: 13, color: "#374151", fontWeight: 500 }}>{arr.destination}</span>
-                <EtaChip minutes={arr.eta} />
-              </div>
-            ))}
-          </div>
-
-          <button
-            onClick={() => navigate(`/stop/${selectedStop.id}`)}
-            className="w-full flex items-center justify-center gap-2"
+        {hospitals.map(hospital => (
+          <div
+            key={hospital.id}
             style={{
-              height: 46, background: "#F47C20", border: "none", borderRadius: 999,
-              color: "#fff", fontSize: 14, fontWeight: 600, cursor: "pointer",
+              position: "absolute",
+              left: `${hospital.x}%`,
+              top: `${hospital.y}%`,
+              transform: "translate(-50%, -50%)",
+              width: 32,
+              height: 32,
+              borderRadius: "50%",
+              border: "3px solid #fff",
+              background: "#F05656",
+              color: "#fff",
+              fontSize: 18,
+              fontWeight: 700,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 14,
+              boxShadow: "0 3px 8px rgba(0,0,0,0.22)",
             }}
           >
-            Дэлгэрэнгүй
-            <ChevronRight size={16} />
-          </button>
-        </div>
-      )}
+            H
+          </div>
+        ))}
 
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 20 }}>
-        <BottomNav />
+        <button
+          type="button"
+          style={{
+            position: "absolute",
+            right: 12,
+            bottom: selected ? 274 : 126,
+            width: 46,
+            height: 46,
+            borderRadius: "50%",
+            border: "1px solid #CFCFCF",
+            background: "#fff",
+            color: "#2E6FE8",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            zIndex: 26,
+            boxShadow: "0 4px 10px rgba(0,0,0,0.16)",
+            transition: "bottom 0.2s",
+          }}
+        >
+          <LocateFixed size={20} />
+        </button>
+
+        <div style={{ position: "absolute", left: 12, right: 12, bottom: 12, zIndex: 28 }}>
+          <div className="flex gap-2 overflow-x-auto" style={{ scrollbarWidth: "none", paddingBottom: 2 }}>
+            {routeOptions.map(route => {
+              const active = route.id === selectedRoute;
+              return (
+                <button
+                  key={route.id}
+                  type="button"
+                  onClick={() => setSelectedRoute(prev => (prev === route.id ? null : route.id))}
+                  style={{
+                    minWidth: 142,
+                    borderRadius: 12,
+                    border: active ? `2px solid ${route.color}` : "1px solid #D1D5DB",
+                    background: active ? "#fff" : "rgba(255,255,255,0.95)",
+                    padding: "8px 10px",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    boxShadow: active ? "0 6px 14px rgba(0,0,0,0.14)" : "0 2px 8px rgba(0,0,0,0.08)",
+                  }}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <Bus size={13} style={{ color: "#5B6068" }} />
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "#2A2A2A" }}>
+                      {route.line} • {route.minutes} мин
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 11, color: "#6B7280", marginTop: 2 }}>{route.interval}</div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {selected && (
+          <div
+            style={{
+              position: "absolute",
+              left: 12,
+              right: 12,
+              bottom: 92,
+              zIndex: 29,
+              background: "#fff",
+              borderRadius: 14,
+              border: `2px solid ${selected.color}`,
+              padding: "10px 12px",
+              boxShadow: "0 8px 18px rgba(0,0,0,0.18)",
+            }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 800, color: "#1F2937" }}>
+              Чиглэл {selected.line}: {selected.from} → {selected.to}
+            </div>
+
+            <div className="flex flex-wrap gap-2 mt-2">
+              <InfoPill icon={<Footprints size={12} />} text={`Алхалт ${selected.walk}`} />
+              <InfoPill icon={<Bus size={12} />} text={selected.busStops} />
+              <InfoPill text={`${selected.distance} • ${selected.fare}`} />
+            </div>
+
+            <div style={{ marginTop: 8, fontSize: 11, color: "#4B5563", lineHeight: "16px" }}>
+              1. {selected.steps[0]}
+              <br />
+              2. {selected.steps[1]}
+              <br />
+              3. {selected.steps[2]}
+            </div>
+
+            <div className="flex items-center gap-3" style={{ marginTop: 8 }}>
+              <span style={{ fontSize: 11, color: "#6B7280" }}>Эхний: {selected.firstBus}</span>
+              <span style={{ fontSize: 11, color: "#6B7280" }}>Сүүлийн: {selected.lastBus}</span>
+              <span style={{ fontSize: 11, color: "#6B7280" }}>Давтамж: {selected.interval}</span>
+            </div>
+          </div>
+        )}
       </div>
 
-      <style>{`
-        @keyframes slideUp {
-          from { transform: translateY(20px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-      `}</style>
+      <BottomNav />
     </div>
   );
 }
+
+function RouteCallout({
+  route,
+  selected,
+  onClick,
+}: {
+  route: RouteOption;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        position: "absolute",
+        left: `${route.bubblePos.x}%`,
+        top: `${route.bubblePos.y}%`,
+        transform: "translate(-50%, -50%)",
+        background: "#EFEFEF",
+        border: selected ? "2px solid #9FA4AB" : "1px solid #B6BBC1",
+        borderRadius: 2,
+        padding: "7px 10px",
+        minWidth: 112,
+        textAlign: "left",
+        boxShadow: "0 3px 9px rgba(0,0,0,0.16)",
+        zIndex: 24,
+        cursor: "pointer",
+      }}
+    >
+      <div className="flex items-center gap-1">
+        <Bus size={13} style={{ color: "#59606B" }} />
+        <span style={{ fontSize: 11, color: "#636A73", fontWeight: 600 }}>{route.line}</span>
+        <span style={{ fontSize: 12, color: "#8A9098", marginLeft: 2 }}>›››</span>
+      </div>
+      <div style={{ marginTop: 1, fontSize: 14, lineHeight: 1.1, fontWeight: 700, color: "#2F343A" }}>
+        {route.minutes} мин
+      </div>
+      <div style={{ fontSize: 11, color: "#6C737C", marginTop: 1 }}>{route.interval}</div>
+    </button>
+  );
+}
+
+function InfoPill({ icon, text }: { icon?: React.ReactNode; text: string }) {
+  return (
+    <span
+      className="flex items-center gap-1"
+      style={{
+        height: 22,
+        borderRadius: 999,
+        padding: "0 8px",
+        border: "1px solid #E5E7EB",
+        background: "#F9FAFB",
+        fontSize: 11,
+        color: "#374151",
+        fontWeight: 600,
+      }}
+    >
+      {icon}
+      {text}
+    </span>
+  );
+}
+

@@ -8,8 +8,7 @@ export function SplashScreen() {
     <div
       className="flex flex-col"
       style={{
-        minHeight: "100%",
-        height: 844,
+        height: "100%",
         background: "#fff",
         position: "relative",
         overflow: "hidden",
@@ -72,8 +71,8 @@ export function SplashScreen() {
           <FeatureItem icon="🗺️" title="Чиглэлийн газрын зураг" desc="Бүх чиглэлийг газрын зураг дээр харах" />
         </div>
 
-        <div style={{ marginTop: 40 }}>
-          <p style={{ fontSize: 13, color: "#9CA3AF", textAlign: "center", marginBottom: 20, lineHeight: "18px" }}>
+        <div style={{ marginTop: 32 }}>
+          <p style={{ fontSize: 12, color: "#6B7280", textAlign: "left", marginBottom: 14, lineHeight: "18px", background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 12, padding: "10px 12px" }}>
             Байршлаа ашиглан ойролцоох буудлыг харах боломжтой
           </p>
           <button
@@ -98,7 +97,7 @@ export function SplashScreen() {
             onClick={() => navigate("/home")}
             className="w-full"
             style={{
-              marginTop: 12,
+              marginTop: 14,
               height: 48,
               background: "transparent",
               border: "1.5px solid #E2E8F0",

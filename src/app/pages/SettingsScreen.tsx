@@ -86,9 +86,9 @@ export function SettingsScreen() {
   ];
 
   return (
-    <div className="flex flex-col" style={{ minHeight: 844, background: "#F7F8FA" }}>
+    <div className="flex flex-col" style={{ height: "100%", background: "#F7F8FA" }}>
       <div style={{ height: 44, background: "#fff" }} />
-      <AppBar title="Бусад" />
+      <AppBar title={"\u0411\u0443\u0441\u0430\u0434"} showBack />
 
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6" style={{ scrollbarWidth: "none" }}>
         {/* Profile card */}
@@ -200,3 +200,4 @@ export function SettingsScreen() {
     </div>
   );
 }
+

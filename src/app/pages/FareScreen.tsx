@@ -33,7 +33,7 @@ export function FareScreen() {
   const [activeTab, setActiveTab] = useState("card");
 
   return (
-    <div className="flex flex-col" style={{ minHeight: 844, background: "#F7F8FA" }}>
+    <div className="flex flex-col" style={{ height: "100%", background: "#F7F8FA" }}>
       <div style={{ height: 44, background: "#fff" }} />
       <AppBar title="Төлбөрийн мэдээлэл" showBack />
 
@@ -112,9 +112,7 @@ export function FareScreen() {
               <div className="grid grid-cols-2 gap-3">
                 {[
                   { name: "UB Citizen Card", emoji: "💳", color: "#EAF2FF", textColor: "#2563EB" },
-                  { name: "QPay", emoji: "📱", color: "#EAF8EF", textColor: "#16A34A" },
                   { name: "Бэлэн мөнгө", emoji: "💵", color: "#FFF1E7", textColor: "#F47C20" },
-                  { name: "Social Pay", emoji: "🔵", color: "#F3EEFF", textColor: "#7C3AED" },
                 ].map(m => (
                   <div key={m.name} style={{ background: "#fff", borderRadius: 14, padding: "14px", border: "1px solid #F1F3F6", display: "flex", alignItems: "center", gap: 10 }}>
                     <div style={{ width: 40, height: 40, borderRadius: 12, background: m.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>{m.emoji}</div>
@@ -161,6 +159,10 @@ export function FareScreen() {
                   </div>
                   <div style={{ height: 6, borderRadius: 999, background: "#F1F3F6", overflow: "hidden" }}>
                     <div style={{ height: "100%", width: d.discount, background: d.color, borderRadius: 999 }} />
+                  </div>
+                  <div className="flex items-center justify-between" style={{ marginTop: 6 }}>
+                    <span style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 600 }}>0%</span>
+                    <span style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 600 }}>100%</span>
                   </div>
                   <div style={{ fontSize: 12, color: "#6B7280", marginTop: 8 }}>{d.requirement}</div>
                 </div>

@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router";
-import { Search, Bus, MapPin, CreditCard, ChevronRight, Star, Bell, Navigation, Clock } from "lucide-react";
+import { Search, Bus, MapPin, CreditCard, ChevronRight, Star, Navigation } from "lucide-react";
 import { BottomNav } from "../components/BottomNav";
 import { EtaChip } from "../components/EtaChip";
+import { NotificationButton } from "../components/NotificationButton";
 
 const nearbyStops = [
   { id: "1", name: "Сүхбаатарын талбай", stopId: "SB-01", distance: "120м", routes: ["7", "11", "23"], nextBus: 2 },
@@ -17,9 +18,10 @@ const favoriteRoutes = [
 
 export function HomeScreen() {
   const navigate = useNavigate();
+  const unreadNotifications = 4;
 
   return (
-    <div className="flex flex-col" style={{ minHeight: 844, background: "#F7F8FA" }}>
+    <div className="flex flex-col" style={{ height: "100%", background: "#F7F8FA" }}>
       {/* Status bar space */}
       <div style={{ height: 44, background: "#fff" }} />
 
@@ -36,20 +38,7 @@ export function HomeScreen() {
             <div style={{ fontSize: 13, color: "#6B7280", lineHeight: "18px" }}>Сайн байна уу 👋</div>
             <div style={{ fontSize: 20, fontWeight: 700, color: "#111827", lineHeight: "26px" }}>Таны ойролцоох автобус</div>
           </div>
-          <button
-            style={{
-              width: 40, height: 40, borderRadius: "50%",
-              background: "#FFF1E7", border: "none", cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center", position: "relative"
-            }}
-          >
-            <Bell size={20} style={{ color: "#F47C20" }} />
-            <span style={{
-              position: "absolute", top: 6, right: 6,
-              width: 8, height: 8, borderRadius: "50%",
-              background: "#DC2626", border: "2px solid #fff"
-            }} />
-          </button>
+          <NotificationButton count={unreadNotifications} />
         </div>
 
         {/* Location bar */}
@@ -154,12 +143,12 @@ export function HomeScreen() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 14, fontWeight: 600, color: "#111827" }}>{stop.name}</div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span style={{ fontSize: 12, color: "#9CA3AF" }}>{stop.distance}</span>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "#374151", background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 999, padding: "1px 8px" }}>{stop.distance}</span>
                     <span style={{ width: 3, height: 3, borderRadius: "50%", background: "#D1D5DB", display: "inline-block" }} />
-                    <div className="flex gap-1">
+                    <div className="flex gap-1.5">
                       {stop.routes.slice(0, 3).map(r => (
-                        <span key={r} style={{ fontSize: 11, fontWeight: 600, background: "#F1F3F6", color: "#374151", borderRadius: 6, padding: "1px 6px" }}>{r}</span>
+                        <span key={r} style={{ fontSize: 12, fontWeight: 700, background: "#EEF2FF", color: "#1F3B8B", borderRadius: 8, padding: "2px 8px" }}>{r}</span>
                       ))}
                     </div>
                   </div>
@@ -213,32 +202,6 @@ export function HomeScreen() {
             ))}
           </div>
         </div>
-
-        {/* Fare info banner */}
-        <div className="px-4 pb-6">
-          <button
-            onClick={() => navigate("/fare")}
-            style={{
-              width: "100%",
-              background: "linear-gradient(135deg, #F47C20 0%, #DD6D17 100%)",
-              borderRadius: 16,
-              padding: "16px 20px",
-              border: "none",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 14,
-              boxShadow: "0 8px 24px rgba(244,124,32,0.25)",
-            }}
-          >
-            <CreditCard size={32} style={{ color: "#fff", flexShrink: 0 }} />
-            <div style={{ flex: 1, textAlign: "left" }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>Төлбөрийн мэдээлэл</div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", marginTop: 2 }}>Карт, бэлэн, хөнгөлөлтийн нөхцөл</div>
-            </div>
-            <ChevronRight size={20} style={{ color: "rgba(255,255,255,0.8)" }} />
-          </button>
-        </div>
       </div>
 
       <BottomNav />
@@ -279,3 +242,4 @@ function QuickAction({ icon, title, desc, bg, onClick }: {
     </button>
   );
 }
+

@@ -32,9 +32,9 @@ export function FavoritesScreen() {
   const isEmpty = favRoutes.length === 0 && favStops.length === 0;
 
   return (
-    <div className="flex flex-col" style={{ minHeight: 844, background: "#F7F8FA" }}>
+    <div className="flex flex-col" style={{ height: "100%", background: "#F7F8FA" }}>
       <div style={{ height: 44, background: "#fff" }} />
-      <AppBar title="Дуртай" />
+      <AppBar title={"\u0414\u0443\u0440\u0442\u0430\u0439"} showBack />
 
       <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
         {isEmpty ? (
@@ -96,34 +96,44 @@ export function FavoritesScreen() {
                 <div style={{ background: "#fff", borderRadius: 16, overflow: "hidden", border: "1px solid #F1F3F6" }}>
                   {favStops.map((s, i) => (
                     <div key={s.id} style={{ borderBottom: i < favStops.length - 1 ? "1px solid #F7F8FA" : "none" }}>
-                      <button
-                        onClick={() => navigate(`/stop/${s.id}`)}
-                        style={{
-                          width: "100%", display: "flex", alignItems: "center", gap: 12,
-                          padding: "14px 16px", background: "none", border: "none", cursor: "pointer", textAlign: "left",
-                        }}
-                      >
-                        <div style={{ width: 44, height: 44, borderRadius: 12, background: "#FFF1E7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <MapPin size={20} style={{ color: "#F47C20" }} />
-                        </div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 14, fontWeight: 600, color: "#111827" }}>{s.name}</div>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span style={{ fontSize: 12, color: "#9CA3AF" }}># {s.code}</span>
-                            <span style={{ width: 3, height: 3, borderRadius: "50%", background: "#D1D5DB", display: "inline-block" }} />
-                            <span style={{ fontSize: 12, color: "#9CA3AF" }}>{s.distance}</span>
+                      <div className="flex items-center gap-3" style={{ padding: "14px 16px" }}>
+                        <button
+                          onClick={() => navigate(`/stop/${s.id}`)}
+                          style={{
+                            flex: 1,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 12,
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            textAlign: "left",
+                            padding: 0,
+                            minHeight: 44,
+                          }}
+                        >
+                          <div style={{ width: 44, height: 44, borderRadius: 12, background: "#FFF1E7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                            <MapPin size={20} style={{ color: "#F47C20" }} />
                           </div>
-                        </div>
-                        <div className="flex items-center gap-2">
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: "#111827" }}>{s.name}</div>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span style={{ fontSize: 12, color: "#9CA3AF" }}># {s.code}</span>
+                              <span style={{ width: 3, height: 3, borderRadius: "50%", background: "#D1D5DB", display: "inline-block" }} />
+                              <span style={{ fontSize: 12, color: "#9CA3AF" }}>{s.distance}</span>
+                            </div>
+                          </div>
                           <EtaChip minutes={s.nextBus} />
-                          <button
-                            onClick={e => { e.stopPropagation(); removeStop(s.id); }}
-                            style={{ width: 32, height: 32, borderRadius: "50%", background: "#FDECEC", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-                          >
-                            <Trash2 size={14} style={{ color: "#DC2626" }} />
-                          </button>
-                        </div>
-                      </button>
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="Remove stop from favorites"
+                          onClick={() => removeStop(s.id)}
+                          style={{ width: 40, height: 40, borderRadius: "50%", background: "#FDECEC", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+                        >
+                          <Trash2 size={15} style={{ color: "#DC2626" }} />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -159,6 +169,23 @@ export function FavoritesScreen() {
                       }
                     </div>
                     <div style={{ flex: 1 }}>
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          height: 20,
+                          padding: "0 8px",
+                          borderRadius: 999,
+                          fontSize: 10,
+                          fontWeight: 700,
+                          letterSpacing: "0.03em",
+                          marginBottom: 4,
+                          background: item.type === "route" ? "#EEF2FF" : "#FFF1E7",
+                          color: item.type === "route" ? "#1D4ED8" : "#C2410C",
+                        }}
+                      >
+                        {item.type === "route" ? "ROUTE" : "STOP"}
+                      </span>
                       {item.type === "route" && <div style={{ fontSize: 11, fontWeight: 700, color: item.color, marginBottom: 1 }}>{item.number}</div>}
                       <div style={{ fontSize: 13, color: "#374151", fontWeight: 500 }}>{item.name}</div>
                       {item.type === "stop" && <div style={{ fontSize: 11, color: "#9CA3AF" }}># {item.code}</div>}
@@ -199,3 +226,4 @@ function EmptyState({ onSearch }: { onSearch: () => void }) {
     </div>
   );
 }
+

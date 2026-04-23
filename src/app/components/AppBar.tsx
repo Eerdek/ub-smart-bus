@@ -1,14 +1,24 @@
 import { useNavigate } from "react-router";
-import { ArrowLeft, Bell } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { NotificationButton } from "./NotificationButton";
 
 interface AppBarProps {
   title: string;
   showBack?: boolean;
   rightContent?: React.ReactNode;
   transparent?: boolean;
+  showNotification?: boolean;
+  notificationCount?: number;
 }
 
-export function AppBar({ title, showBack = false, rightContent, transparent = false }: AppBarProps) {
+export function AppBar({
+  title,
+  showBack = false,
+  rightContent,
+  transparent = false,
+  showNotification = true,
+  notificationCount = 4,
+}: AppBarProps) {
   const navigate = useNavigate();
 
   return (
@@ -18,9 +28,7 @@ export function AppBar({ title, showBack = false, rightContent, transparent = fa
         height: 56,
         background: transparent ? "transparent" : "#fff",
         borderBottom: transparent ? "none" : "1px solid #F1F3F6",
-        position: "sticky",
-        top: 44,
-        zIndex: 40,
+        flexShrink: 0,
       }}
     >
       {showBack ? (
@@ -42,14 +50,7 @@ export function AppBar({ title, showBack = false, rightContent, transparent = fa
         {title}
       </span>
 
-      {rightContent || (
-        <button
-          className="flex items-center justify-center rounded-full"
-          style={{ width: 40, height: 40, background: "#F7F8FA", border: "none", cursor: "pointer" }}
-        >
-          <Bell size={20} style={{ color: "#6B7280" }} />
-        </button>
-      )}
+      {rightContent || (showNotification ? <NotificationButton count={notificationCount} /> : <div style={{ width: 40 }} />)}
     </div>
   );
 }

@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router";
 import { Star, MapPin, Navigation, Users, RefreshCw, ChevronRight } from "lucide-react";
 import { AppBar } from "../components/AppBar";
 import { EtaChip } from "../components/EtaChip";
+import { BottomNav } from "../components/BottomNav";
+import { NotificationButton } from "../components/NotificationButton";
 
 const stopData: Record<string, {
   name: string;
@@ -73,18 +75,21 @@ export function StopDetailScreen() {
   };
 
   return (
-    <div className="flex flex-col" style={{ minHeight: 844, background: "#F7F8FA" }}>
+    <div className="flex flex-col" style={{ height: "100%", background: "#F7F8FA" }}>
       <div style={{ height: 44, background: "#fff" }} />
       <AppBar
         title="Буудлын мэдээлэл"
         showBack
         rightContent={
-          <button
-            onClick={() => setFav(!fav)}
-            style={{ width: 40, height: 40, borderRadius: "50%", background: fav ? "#FFF7E0" : "#F7F8FA", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-          >
-            <Star size={20} style={{ color: fav ? "#F59E0B" : "#9CA3AF", fill: fav ? "#F59E0B" : "none" }} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setFav(!fav)}
+              style={{ width: 40, height: 40, borderRadius: "50%", background: fav ? "#FFF7E0" : "#F7F8FA", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+            >
+              <Star size={20} style={{ color: fav ? "#F59E0B" : "#9CA3AF", fill: fav ? "#F59E0B" : "none" }} />
+            </button>
+            <NotificationButton />
+          </div>
         }
       />
 
@@ -194,6 +199,8 @@ export function StopDetailScreen() {
           </button>
         </div>
       </div>
+
+      <BottomNav />
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Search, X, ChevronRight, Star, Filter } from "lucide-react";
+import { Search, X, ChevronRight, Star, Check } from "lucide-react";
 import { AppBar } from "../components/AppBar";
 import { BottomNav } from "../components/BottomNav";
 
@@ -67,13 +67,13 @@ export function SearchRoutesScreen() {
   };
 
   return (
-    <div className="flex flex-col" style={{ minHeight: 844, background: "#F7F8FA" }}>
+    <div className="flex flex-col" style={{ height: "100%", background: "#F7F8FA" }}>
       <div style={{ height: 44, background: "#fff" }} />
       <AppBar title="Чиглэл хайх" showBack />
 
       {/* Search field */}
       <div className="px-4 py-3" style={{ background: "#fff", borderBottom: "1px solid #F1F3F6" }}>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center">
           <div
             className="flex-1 flex items-center gap-2"
             style={{
@@ -101,38 +101,39 @@ export function SearchRoutesScreen() {
               </button>
             )}
           </div>
-          <button
-            type="button"
-            aria-label="Open filters"
-            style={{ width: 44, height: 44, borderRadius: 12, background: "#FFF1E7", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-          >
-            <Filter size={18} style={{ color: "#F47C20" }} />
-          </button>
         </div>
 
         {/* Filter chips */}
         <div className="flex gap-2 mt-3 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-          {filters.map(f => (
-            <button
-              key={f}
-              type="button"
-              onClick={() => setActiveFilter(f)}
-              style={{
-                height: 32,
-                padding: "0 14px",
-                borderRadius: 999,
-                border: activeFilter === f ? "none" : "1.5px solid #E2E8F0",
-                background: activeFilter === f ? "#FFF1E7" : "#fff",
-                color: activeFilter === f ? "#F47C20" : "#6B7280",
-                fontSize: 13,
-                fontWeight: activeFilter === f ? 600 : 400,
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {f}
-            </button>
-          ))}
+          {filters.map(f => {
+            const active = activeFilter === f;
+            return (
+              <button
+                key={f}
+                type="button"
+                onClick={() => setActiveFilter(f)}
+                style={{
+                  height: 34,
+                  padding: active ? "0 14px 0 10px" : "0 14px",
+                  borderRadius: 999,
+                  border: active ? "1.5px solid #FDBA74" : "1.5px solid #E2E8F0",
+                  background: active ? "#FFF1E7" : "#fff",
+                  color: active ? "#C2410C" : "#6B7280",
+                  fontSize: 13,
+                  fontWeight: active ? 700 : 500,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  boxShadow: active ? "0 4px 10px rgba(244,124,32,0.15)" : "none",
+                }}
+              >
+                {active && <Check size={13} style={{ color: "#F47C20" }} />}
+                {f}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -168,6 +169,11 @@ export function SearchRoutesScreen() {
         {/* Route results */}
         <div className="pb-4">
           {!query && <div style={{ fontSize: 13, color: "#9CA3AF", fontWeight: 600, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Бүх чиглэлүүд</div>}
+          <div className="flex items-center justify-between mb-2">
+            <div style={{ fontSize: 13, color: "#6B7280", fontWeight: 600 }}>
+              {filtered.length} чиглэл олдлоо
+            </div>
+          </div>
           <div style={{ background: "#fff", borderRadius: 16, overflow: "hidden", border: "1px solid #F1F3F6", boxShadow: "0 2px 8px rgba(17,24,39,0.04)" }}>
             {filtered.map((route, i) => (
               <div

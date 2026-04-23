@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router";
 import { Star, MapPin, Clock, Users, ChevronRight, Bus } from "lucide-react";
 import { AppBar } from "../components/AppBar";
 import { EtaChip } from "../components/EtaChip";
+import { BottomNav } from "../components/BottomNav";
+import { NotificationButton } from "../components/NotificationButton";
 
 const routeData: Record<string, {
   number: string;
@@ -108,7 +110,7 @@ export function RouteDetailScreen() {
   const stops = direction === "forward" ? route.forward : route.backward;
 
   return (
-    <div className="flex flex-col" style={{ minHeight: 844, background: "#F7F8FA" }}>
+    <div className="flex flex-col" style={{ height: "100%", background: "#F7F8FA" }}>
       <div style={{ height: 44, background: "#fff" }} />
 
       {/* Header */}
@@ -117,12 +119,15 @@ export function RouteDetailScreen() {
           title={route.number}
           showBack
           rightContent={
-            <button
-              onClick={() => setFav(!fav)}
-              style={{ width: 40, height: 40, borderRadius: "50%", background: fav ? "#FFF7E0" : "#F7F8FA", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-            >
-              <Star size={20} style={{ color: fav ? "#F59E0B" : "#9CA3AF", fill: fav ? "#F59E0B" : "none" }} />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setFav(!fav)}
+                style={{ width: 40, height: 40, borderRadius: "50%", background: fav ? "#FFF7E0" : "#F7F8FA", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+              >
+                <Star size={20} style={{ color: fav ? "#F59E0B" : "#9CA3AF", fill: fav ? "#F59E0B" : "none" }} />
+              </button>
+              <NotificationButton />
+            </div>
           }
         />
 
@@ -270,6 +275,8 @@ export function RouteDetailScreen() {
           Газрын зураг дээр харах
         </button>
       </div>
+
+      <BottomNav />
     </div>
   );
 }

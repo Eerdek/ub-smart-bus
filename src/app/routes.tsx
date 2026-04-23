@@ -10,6 +10,7 @@ import { MapScreen } from "./pages/MapScreen";
 import { FareScreen } from "./pages/FareScreen";
 import { FavoritesScreen } from "./pages/FavoritesScreen";
 import { SettingsScreen } from "./pages/SettingsScreen";
+import { NotificationsScreen } from "./pages/NotificationsScreen";
 
 export const router = createBrowserRouter([
   {
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
       { path: "fare", Component: FareScreen },
       { path: "favorites", Component: FavoritesScreen },
       { path: "settings", Component: SettingsScreen },
+      { path: "notifications", Component: NotificationsScreen },
     ],
   },
 ]);

@@ -80,9 +80,7 @@ export function Root() {
               style={{
                 position: "absolute",
                 inset: 0,
-                overflowY: "auto",
-                overflowX: "hidden",
-                scrollbarWidth: "none",
+                overflow: "hidden",
               }}
             >
               <Outlet />
@@ -103,9 +101,7 @@ export function Root() {
           position: "fixed",
           inset: 0,
           background: "#F7F8FA",
-          overflowY: "auto",
-          overflowX: "hidden",
-          scrollbarWidth: "none",
+          overflow: "hidden",
           fontFamily: "'Inter', sans-serif",
         }}
       >
